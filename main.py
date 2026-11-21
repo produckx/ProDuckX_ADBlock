@@ -1,12 +1,26 @@
 """FastAPI trên Vercel: build blocklist.bin định kỳ và public qua Vercel Blob."""
 import os
 import tempfile
+from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from vercel.blob import sync as blob
 
 import build_blocklist
+
+
+def load_env():
+    # uvicorn local không tự đọc .env -> nạp tay, khỏi thêm dependency
+    f = Path(__file__).with_name(".env")
+    if f.exists():
+        for line in f.read_text(encoding="utf-8").splitlines():
+            key, _, value = line.strip().partition("=")
+            if key and not key.startswith("#") and value:
+                os.environ.setdefault(key, value.strip().strip("\"'"))
+
+
+load_env()
 
 CRON_SECRET = os.environ.get("CRON_SECRET", "")
 BLOB_NAME = "blocklist.bin"
@@ -34,7 +48,7 @@ def refresh(authorization: str = Header(None)):
     return {"ok": True, "url": uploaded.url, **stats}
 
 
-@app.get("/download")
+@app.get("/api/download/blocklist.bin")
 def download():
     try:
         meta = blob.head_blob(BLOB_NAME)
@@ -51,6 +65,6 @@ def index():
 a.btn{display:inline-block;background:#111;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none}</style>
 <h1>ProDuckX Blocklist</h1>
 <p>Danh sách chặn quảng cáo dạng hash 5 byte (40-bit), làm mới 23:00 Chủ nhật hằng tuần.</p>
-<p><a class="btn" href="/download">Tải blocklist.bin</a></p>
+<p><a class="btn" href="/api/download/blocklist.bin">Tải blocklist.bin</a></p>
 <p><small>Build định kỳ: <code>/api/refresh</code></small></p>
 </html>"""

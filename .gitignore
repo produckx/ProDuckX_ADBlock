@@ -1,10 +1,12 @@
 .vscode/
 .screenshots/
 venv/
+.env
+.env.local
 # macOS metadata
 .DS_Store
 ._*
-
+.env
 # Backups / scratch
 *.bak
 
