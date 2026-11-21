@@ -1,0 +1,2 @@
+fastapi
+vercel-blob>=0.5

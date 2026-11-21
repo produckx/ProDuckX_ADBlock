@@ -1,0 +1,11 @@
+.vscode/
+.screenshots/
+venv/
+# macOS metadata
+.DS_Store
+._*
+
+# Backups / scratch
+*.bak
+
+__pycache__/
